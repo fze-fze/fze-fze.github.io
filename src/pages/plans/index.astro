@@ -11,10 +11,7 @@ const plans = (await getCollection("plans", ({ data }) => !data.draft)).sort((a,
 
 <BaseLayout title="每周计划 | fze's journal" description="公开周计划与周复盘归档。">
   <section class="listing">
-    <SectionShell
-      title="每周计划"
-      copy="把每一周拆成清晰、可复盘的节奏切片。内容仍然来自 Markdown，但界面会帮你保留秩序与氛围。"
-    />
+    <SectionShell title="每周计划" />
     <div class="container archive-grid">
       {plans.map((plan) => (
         <PlanSummary

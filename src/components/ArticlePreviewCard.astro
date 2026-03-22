@@ -1,0 +1,159 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  dateLabel: string;
+  tags?: string[];
+  description?: string;
+  variant?: "hero" | "compact";
+  hideMetaTag?: boolean;
+  cover?: string;
+}
+
+const {
+  href,
+  title,
+  dateLabel,
+  tags = [],
+  description = "",
+  variant = "compact",
+  hideMetaTag = false,
+  cover = ""
+} = Astro.props;
+
+const primaryTag = tags[0];
+const coverStyle = cover ? `background-image:url(${JSON.stringify(cover)});` : "";
+---
+
+<article class:list={["article-preview", `article-preview-${variant}`]}>
+  <a class="article-link" href={href}>
+    <div class="article-art" aria-hidden="true" style={coverStyle}></div>
+
+    <div class="article-body">
+      <div class="article-meta">
+        {!hideMetaTag && primaryTag && <span>{primaryTag}</span>}
+        {variant !== "hero" && <span>{dateLabel}</span>}
+      </div>
+      <h3>{title}</h3>
+      {variant === "hero" && description && <p>{description}</p>}
+      {variant === "hero" && <span class="article-date-corner">{dateLabel}</span>}
+    </div>
+  </a>
+</article>
+
+<style>
+  .article-preview {
+    min-width: 0;
+  }
+
+  .article-link {
+    display: grid;
+    color: inherit;
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 247, 247, 0.92));
+    transition:
+      border-color var(--transition),
+      background var(--transition),
+      transform var(--transition);
+  }
+
+  .article-link:hover,
+  .article-link:focus-visible {
+    border-color: var(--line-strong);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(244, 244, 244, 0.96));
+    transform: translateY(-2px);
+  }
+
+  .article-art {
+    position: relative;
+    overflow: hidden;
+    background-color: #ffffff;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  .article-preview-hero .article-art {
+    min-height: clamp(16rem, 32vw, 24rem);
+  }
+
+  .article-preview-compact .article-art {
+    min-height: 12rem;
+  }
+
+  .article-body {
+    display: grid;
+    gap: 0.75rem;
+    position: relative;
+    padding: 1.2rem 1.25rem 1.3rem;
+    border-top: 1px solid rgba(17, 17, 17, 0.06);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), #ffffff 58%);
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    color: var(--text-soft);
+    font-size: 0.94rem;
+  }
+
+  .article-body h3,
+  .article-body p {
+    margin: 0;
+  }
+
+  .article-preview-hero h3 {
+    font-size: clamp(2rem, 1.55rem + 1.45vw, 3.1rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+    text-wrap: balance;
+    max-width: 12ch;
+  }
+
+  .article-date-corner {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.1rem;
+    color: var(--text-soft);
+    font-size: 0.94rem;
+  }
+
+  .article-preview-compact h3 {
+    font-size: clamp(1.08rem, 0.98rem + 0.34vw, 1.25rem);
+    line-height: 1.06;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .article-preview-hero p {
+    max-width: 42rem;
+    color: var(--text-soft);
+    font-size: 1rem;
+  }
+
+  .article-preview-hero .article-meta:empty,
+  .article-preview-compact .article-meta:empty {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .article-preview-hero .article-art {
+      min-height: 14rem;
+    }
+
+    .article-preview-compact .article-art {
+      min-height: 10rem;
+    }
+
+    .article-preview-hero h3 {
+      max-width: none;
+    }
+  }
+</style>

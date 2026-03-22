@@ -1,15 +1,15 @@
 ---
 interface Props {
   title: string;
-  copy: string;
+  copy?: string;
 }
 
-const { title, copy } = Astro.props;
+const { title, copy = "" } = Astro.props;
 ---
 
 <div class="section-shell container">
   <h2 class="section-title">{title}</h2>
-  <p class="section-copy">{copy}</p>
+  {copy && <p class="section-copy">{copy}</p>}
 </div>
 
 <style>

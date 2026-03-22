@@ -9,11 +9,94 @@ interface Props {
 }
 
 const { title, description, dateLabel, meta = [] } = Astro.props;
+
+const weightedLength = (value: string) =>
+  Array.from(value).reduce((sum, char) => sum + (/[\u0000-\u00ff]/.test(char) ? 0.6 : 1), 0);
+
+const semanticBreakPatterns = [
+  /为什么/g,
+  /是什么/g,
+  /意味着/g,
+  /值[得]/g,
+  /如何/g,
+  /以及/g,
+  /时代下的/g,
+  /之下的/g,
+  /中的/g,
+  /里的/g,
+  /之后/g,
+  /之前/g,
+  /的/g,
+  /，/g,
+  /、/g,
+  /：/g,
+];
+
+const splitTitleIntoTwoLines = (rawTitle: string) => {
+  const normalizedTitle = rawTitle.replace(/\s+/g, " ").trim();
+  const totalWeight = weightedLength(normalizedTitle);
+
+  if (totalWeight <= 12) {
+    return [normalizedTitle];
+  }
+
+  const candidates = new Map<number, number>();
+
+  for (const pattern of semanticBreakPatterns) {
+    for (const match of normalizedTitle.matchAll(pattern)) {
+      const breakpoint = match.index! + match[0].length;
+      const left = normalizedTitle.slice(0, breakpoint).trim();
+      const right = normalizedTitle.slice(breakpoint).trim();
+
+      if (!left || !right || left.length < 3 || right.length < 2) {
+        continue;
+      }
+
+      const leftWeight = weightedLength(left);
+      const rightWeight = weightedLength(right);
+      const balancePenalty = Math.abs(leftWeight - rightWeight);
+
+      let bonus = 0;
+      if (/，|、|：$/.test(match[0])) bonus += 2.8;
+      if (/为什么|是什么|意味着|如何|以及/.test(match[0])) bonus += 2.4;
+      if (/值得/.test(match[0])) bonus += 2.2;
+      if (/时代下的|之下的|中的|里的|之后|之前/.test(match[0])) bonus += 1.8;
+      if (/的/.test(match[0])) bonus += 0.8;
+
+      const score = balancePenalty - bonus;
+      const prev = candidates.get(breakpoint);
+      if (prev === undefined || score < prev) {
+        candidates.set(breakpoint, score);
+      }
+    }
+  }
+
+  if (candidates.size === 0) {
+    return [normalizedTitle];
+  }
+
+  const [bestBreakpoint, bestScore] = [...candidates.entries()].sort((a, b) => a[1] - b[1])[0];
+
+  if (bestScore > 4.2 && totalWeight < 18) {
+    return [normalizedTitle];
+  }
+
+  return [
+    normalizedTitle.slice(0, bestBreakpoint).trim(),
+    normalizedTitle.slice(bestBreakpoint).trim(),
+  ];
+};
+
+const titleLines = splitTitleIntoTwoLines(title);
 ---
 
 <BaseLayout title={`${title} | fze's journal`} description={description}>
   <section class="article-hero container">
-    <h1 class="fade-in">{title}</h1>
+    <h1 class:list={["fade-in", { "is-split": titleLines.length > 1 }]}>
+      {titleLines.map((line, index) => (
+        <span class="title-line">{line}</span>
+      ))}
+    </h1>
     <p class="fade-in-delay">{description}</p>
     <ul class="meta-list fade-in-delay">
       {dateLabel && <li class="meta-pill">{dateLabel}</li>}
@@ -31,6 +114,8 @@ const { title, description, dateLabel, meta = [] } = Astro.props;
     padding: clamp(3.5rem, 10vw, 6rem) 0 1.5rem;
     display: grid;
     gap: 1rem;
+    justify-items: center;
+    text-align: center;
   }
 
   .article-hero h1 {
@@ -38,7 +123,23 @@ const { title, description, dateLabel, meta = [] } = Astro.props;
     font-size: clamp(2.7rem, 2rem + 2.4vw, 4.6rem);
     line-height: 1.04;
     letter-spacing: -0.04em;
-    max-width: 14ch;
+    width: min(100%, 14ch);
+    margin-inline: auto;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+
+  .article-hero h1.is-split {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .article-hero .title-line {
+    display: block;
+  }
+
+  .article-hero h1.is-split .title-line {
+    white-space: nowrap;
   }
 
   .article-hero p {
@@ -56,6 +157,10 @@ const { title, description, dateLabel, meta = [] } = Astro.props;
     border: 1px solid var(--line);
   }
 
+  .article-hero :global(.meta-list) {
+    justify-content: center;
+  }
+
   .article-shell :global(h2),
   .article-shell :global(h3) {
     line-height: 1.15;
@@ -66,7 +171,7 @@ const { title, description, dateLabel, meta = [] } = Astro.props;
   .article-shell :global(p),
   .article-shell :global(li),
   .article-shell :global(blockquote) {
-    color: rgba(236, 236, 236, 0.94);
+    color: var(--text);
     font-size: 1.02rem;
   }
 

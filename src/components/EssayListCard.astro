@@ -1,0 +1,78 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  dateLabel: string;
+  cover?: string;
+}
+
+const { href, title, dateLabel, cover = "" } = Astro.props;
+const coverStyle = cover ? `background-image:url(${JSON.stringify(cover)});` : "";
+---
+
+<a class="essay-card" href={href}>
+  <div class="essay-thumb" aria-hidden="true" style={coverStyle}></div>
+
+  <div class="essay-body">
+    <h3>{title}</h3>
+    <p>{dateLabel}</p>
+  </div>
+</a>
+
+<style>
+  .essay-card {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: center;
+    min-width: 0;
+    color: inherit;
+  }
+
+  .essay-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background-color: #ffffff;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  .essay-body {
+    display: grid;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  .essay-body h3,
+  .essay-body p {
+    margin: 0;
+  }
+
+  .essay-body h3 {
+    font-size: clamp(1.08rem, 0.98rem + 0.36vw, 1.3rem);
+    line-height: 1.14;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+
+  .essay-body p {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 720px) {
+    .essay-card {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      gap: 0.95rem;
+      align-items: start;
+    }
+
+    .essay-body h3 {
+      font-size: 1rem;
+    }
+  }
+</style>

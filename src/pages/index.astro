@@ -3,17 +3,19 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import HomeHero from "../components/HomeHero.astro";
 import SectionShell from "../components/SectionShell.astro";
-import StickySection from "../components/StickySection.astro";
-import FeaturedArticleCard from "../components/FeaturedArticleCard.astro";
-import RailArticleCard from "../components/RailArticleCard.astro";
+import ArticlePreviewCard from "../components/ArticlePreviewCard.astro";
+import EssayListCard from "../components/EssayListCard.astro";
 import PlanSummary from "../components/PlanSummary.astro";
 
-const allArticles = (await getCollection("articles", ({ data }) => !data.draft)).sort(
+const recentArticles = (await getCollection("articles", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 
-const featuredArticle = allArticles[0];
-const railArticles = allArticles.slice(1, 4);
+const featuredArticle = recentArticles[0];
+const railArticles = recentArticles.slice(1, 4);
+const recentEssays = (await getCollection("essays", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 4);
 
 const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
   .sort((a, b) => b.slug.localeCompare(a.slug))[0];
@@ -22,41 +24,70 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
 <BaseLayout title="fze's journal | 极简静态博客" description="首页、文章和每周计划统一于同一套白底黑字的极简视觉系统。">
   <HomeHero />
 
-  <StickySection sectionHeight="220svh" stickyTop="var(--sticky-top)" className="article-story-section">
-    {featuredArticle && (
-      <div class="container story-shell">
-        <div class="story-grid">
-          <div class="story-feature-column">
-            <FeaturedArticleCard
+  {featuredArticle && (
+    <section class="home-section recent-articles-section">
+      <SectionShell title="最近文章" />
+      <div class="container article-story-grid">
+        <div class="article-story-main">
+          <div class="article-story-sticky">
+            <ArticlePreviewCard
               href={`/articles/${featuredArticle.slug}`}
               title={featuredArticle.data.title}
               description={featuredArticle.data.description}
               dateLabel={featuredArticle.data.date.toLocaleDateString("zh-CN")}
               tags={featuredArticle.data.tags}
+              cover={featuredArticle.data.cover?.src}
+              variant="hero"
+              hideMetaTag={true}
             />
           </div>
-
-          <div class="story-rail">
-            {railArticles.map((article, index) => (
-              <RailArticleCard
-                href={`/articles/${article.slug}`}
-                title={article.data.title}
-                dateLabel={article.data.date.toLocaleDateString("zh-CN")}
-                tags={article.data.tags}
-                style={`--rail-index:${index};`}
-              />
-            ))}
-          </div>
         </div>
+
+        <aside class="article-story-rail" aria-label="更多最近文章">
+          {railArticles.map((article) => (
+            <ArticlePreviewCard
+              href={`/articles/${article.slug}`}
+              title={article.data.title}
+              description={article.data.description}
+              dateLabel={article.data.date.toLocaleDateString("zh-CN")}
+              tags={article.data.tags}
+              cover={article.data.cover?.src}
+              variant="compact"
+            />
+          ))}
+          <a class="article-archive-link" href="/articles">
+            <span>浏览全部文章</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </aside>
       </div>
-    )}
-  </StickySection>
+    </section>
+  )}
+
+  {recentEssays.length > 0 && (
+    <section class="home-section recent-essays-section">
+      <div class="container section-head">
+        <h2 class="section-title">最近随笔</h2>
+        <a class="section-head-link" href="/essays">查看更多</a>
+      </div>
+      <div class="container essays-grid">
+        {recentEssays.map((essay) => (
+          <EssayListCard
+            href={`/essays/${essay.slug}`}
+            title={essay.data.title}
+            dateLabel={essay.data.date.toLocaleDateString("zh-CN")}
+            cover={essay.data.cover?.src}
+          />
+        ))}
+      </div>
+    </section>
+  )}
 
   <section class="home-section">
-    <SectionShell
-      title="本周计划"
-      copy="保留一周的目标、推进和复盘，不做复杂看板，只做足够清楚的公开记录。"
-    />
+    <div class="container section-head">
+      <h2 class="section-title">本周计划</h2>
+      <a class="section-head-link" href="/plans">查看更多</a>
+    </div>
     <div class="container plan-wrap">
       {latestPlan && (
         <PlanSummary
@@ -69,31 +100,17 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
         />
       )}
       <div class="notes-panel">
-        <h3>内容方向</h3>
-        <p>
-          这里适合放产品思考、开发日志、设计记录，以及每周对自己节奏的校准。表达尽量克制，重点交还给内容。
-        </p>
-        <a class="surface-link" href="/plans">
-          查看完整计划归档
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section about-section">
-    <SectionShell
-      title="一个更容易长期维护的博客结构"
-      copy="文章与计划分开管理，界面和内容解耦。你只需要持续写 Markdown，站点负责组织和生成。"
-    />
-    <div class="container about-grid">
-      <div class="about-copy">
-        <p>内容层使用 Astro Content Collections 做校验，减少 frontmatter 漏填问题。</p>
-        <p>表现层用统一布局和 design tokens 管理，让首页、文章、计划天然保持同一种语言。</p>
-      </div>
-      <div class="about-links">
-        <a class="surface-link" href="/articles">浏览全部文章 <span aria-hidden="true">→</span></a>
-        <a class="surface-link" href="/plans">浏览每周计划 <span aria-hidden="true">→</span></a>
+        <div class="notes-panel-head">
+          <h3>Todo List</h3>
+        </div>
+        <ul class="todo-list">
+          {(latestPlan?.data.goals ?? []).slice(0, 4).map((goal) => (
+            <li>
+              <span class="todo-check" aria-hidden="true"></span>
+              <span>{goal}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   </section>
@@ -101,82 +118,89 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
 
 <style>
   .home-section {
-    padding: 0 0 clamp(2.5rem, 6vw, 5rem);
+    padding: 0 0 clamp(5.5rem, 11vw, 8.5rem);
   }
 
-  .article-story-section {
-    margin-top: clamp(1rem, 2vw, 1.75rem);
-  }
-
-  .story-grid,
-  .plan-wrap,
-  .about-grid {
+  .article-story-grid,
+  .essays-grid,
+  .plan-wrap {
     display: grid;
     gap: 1rem;
   }
 
-  .story-shell {
-    display: grid;
-    align-items: center;
-    min-height: calc(100svh - var(--sticky-top));
-    padding-bottom: clamp(0.25rem, 1vw, 0.75rem);
+  .recent-articles-section {
+    margin-top: clamp(1rem, 2vw, 1.75rem);
   }
 
-  .story-grid {
-    grid-template-columns: minmax(0, 1.65fr) minmax(290px, 0.55fr);
+  .article-story-grid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.6fr);
     align-items: start;
     gap: 2rem;
   }
 
-  .story-feature-column {
-    transform:
-      translate3d(
-        0,
-        calc(var(--section-progress) * -1.1rem),
-        0
-      )
-      scale(calc(1 - var(--section-progress) * 0.02));
-    transform-origin: center top;
-    opacity: calc(1 - var(--section-progress) * 0.08);
-    transition: transform 120ms linear, opacity 120ms linear;
-    will-change: transform, opacity;
+  .article-story-main,
+  .article-story-rail {
+    min-width: 0;
   }
 
-  .story-rail {
-    position: relative;
-    min-height: 40rem;
+  .article-story-main {
+    align-self: stretch;
   }
 
-  .story-rail :global(.rail-card) {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    transform:
-      translate3d(
-        0,
-        calc(
-          var(--rail-index) * 16.25rem - var(--section-progress) * 31rem
-        ),
-        0
-      )
-      scale(calc(1 - var(--rail-index) * 0.03));
-    opacity: clamp(
-      0.24,
-      calc(1.02 - var(--rail-index) * 0.08 - var(--section-progress) * 0.04),
-      1
-    );
-    transition: transform 120ms linear, opacity 120ms linear;
-    will-change: transform, opacity;
+  .article-story-sticky {
+    position: sticky;
+    top: var(--sticky-top);
+    align-self: start;
+  }
+
+  .article-story-rail {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .article-archive-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .article-archive-link:hover,
+  .article-archive-link:focus-visible {
+    background: var(--panel-soft);
+    border-color: var(--line-strong);
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .section-head-link {
+    color: var(--text-soft);
+    font-size: 0.96rem;
+  }
+
+  .essays-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3rem;
+    row-gap: 1.5rem;
   }
 
   .plan-wrap {
     grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
   }
 
-  .notes-panel,
-  .about-copy,
-  .about-links {
+  .notes-panel {
     border-radius: 22px;
     padding: 1.35rem;
     background: var(--panel);
@@ -189,56 +213,58 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
     gap: 1rem;
   }
 
-  .notes-panel h3,
-  .notes-panel p {
+  .notes-panel-head,
+  .todo-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+  }
+
+  .notes-panel-head h3,
+  .todo-list,
+  .todo-list li {
     margin: 0;
   }
 
-  .about-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+  .notes-panel-head h3 {
+    font-size: 1rem;
+    letter-spacing: -0.03em;
   }
 
-  .about-copy {
+  .todo-list {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
   }
 
-  .about-copy p {
-    margin: 0;
+  .todo-list li {
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: var(--text);
+    line-height: 1.45;
   }
 
-  .about-links {
-    display: grid;
-    gap: 0.8rem;
+  .todo-check {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 1rem;
+    margin-top: 0.18rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-elevated);
   }
 
   @media (max-width: 900px) {
-    .story-shell {
-      min-height: auto;
-      align-items: start;
-    }
-
-    .story-feature-column {
-      transform: none;
-      opacity: 1;
-    }
-
-    .story-grid,
-    .plan-wrap,
-    .about-grid {
+    .article-story-grid,
+    .essays-grid,
+    .plan-wrap {
       grid-template-columns: 1fr;
     }
 
-    .story-rail {
-      min-height: auto;
-      display: grid;
-      gap: 1rem;
-    }
-
-    .story-rail :global(.rail-card) {
+    .article-story-sticky {
       position: static;
-      transform: none;
-      opacity: 1;
     }
   }
 </style>

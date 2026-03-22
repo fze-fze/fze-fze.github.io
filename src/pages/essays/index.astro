@@ -4,22 +4,22 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import SectionShell from "../../components/SectionShell.astro";
 import ArticleSummary from "../../components/ArticleSummary.astro";
 
-const articles = (await getCollection("articles", ({ data }) => !data.draft)).sort(
+const essays = (await getCollection("essays", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 ---
 
-<BaseLayout title="文章 | fze's journal" description="按时间归档的文章列表。">
+<BaseLayout title="随笔 | fze's journal" description="按时间归档的随笔列表。">
   <section class="listing">
-    <SectionShell title="文章" />
+    <SectionShell title="随笔" />
     <div class="container archive-grid">
-      {articles.map((article) => (
+      {essays.map((essay) => (
         <ArticleSummary
-          href={`/articles/${article.slug}`}
-          title={article.data.title}
-          description={article.data.description}
-          dateLabel={article.data.date.toLocaleDateString("zh-CN")}
-          tags={article.data.tags}
+          href={`/essays/${essay.slug}`}
+          title={essay.data.title}
+          description={essay.data.description}
+          dateLabel={essay.data.date.toLocaleDateString("zh-CN")}
+          tags={essay.data.tags}
         />
       ))}
     </div>

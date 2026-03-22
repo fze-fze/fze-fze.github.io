@@ -12,6 +12,18 @@ const articles = defineCollection({
     })
 });
 
+const essays = defineCollection({
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.coerce.date(),
+      tags: z.array(z.string()).default([]),
+      cover: image().optional(),
+      draft: z.boolean().default(false)
+    })
+});
+
 const plans = defineCollection({
   schema: z.object({
     title: z.string(),
@@ -26,5 +38,6 @@ const plans = defineCollection({
 
 export const collections = {
   articles,
+  essays,
   plans
 };
