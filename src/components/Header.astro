@@ -1,12 +1,12 @@
 ---
-import { navigation, siteMeta } from "../data/site";
+import { navigation, siteMeta, withBase } from "../data/site";
 
 const pathname = Astro.url.pathname;
 ---
 
 <header class="site-header">
   <div class="container shell">
-    <a class="brand" href="/">
+    <a class="brand" href={withBase("/")}>
       <span class="brand-text">
         <strong>{siteMeta.title}</strong>
       </span>

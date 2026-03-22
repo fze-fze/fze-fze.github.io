@@ -1,8 +1,12 @@
+---
+import { withBase } from "../data/site";
+---
+
 <section class="hero container">
   <div class="hero-copy">
     <div class="hero-avatar fade-in" aria-hidden="true">
       <span class="hero-avatar-ring"></span>
-      <img src="/images/download.png" alt="" width="136" height="136" loading="eager" />
+      <img src={withBase("/images/download.png")} alt="" width="136" height="136" loading="eager" />
     </div>
     <h1 class="fade-in-delay">welcome to fze's journal</h1>
     <p class="hero-text fade-in-delay">

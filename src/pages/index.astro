@@ -6,6 +6,7 @@ import SectionShell from "../components/SectionShell.astro";
 import ArticlePreviewCard from "../components/ArticlePreviewCard.astro";
 import EssayListCard from "../components/EssayListCard.astro";
 import PlanSummary from "../components/PlanSummary.astro";
+import { withBase } from "../data/site";
 
 const recentArticles = (await getCollection("articles", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
@@ -31,7 +32,7 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
         <div class="article-story-main">
           <div class="article-story-sticky">
             <ArticlePreviewCard
-              href={`/articles/${featuredArticle.slug}`}
+              href={withBase(`/articles/${featuredArticle.slug}`)}
               title={featuredArticle.data.title}
               description={featuredArticle.data.description}
               dateLabel={featuredArticle.data.date.toLocaleDateString("zh-CN")}
@@ -46,7 +47,7 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
         <aside class="article-story-rail" aria-label="更多最近文章">
           {railArticles.map((article) => (
             <ArticlePreviewCard
-              href={`/articles/${article.slug}`}
+              href={withBase(`/articles/${article.slug}`)}
               title={article.data.title}
               description={article.data.description}
               dateLabel={article.data.date.toLocaleDateString("zh-CN")}
@@ -55,7 +56,7 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
               variant="compact"
             />
           ))}
-          <a class="article-archive-link" href="/articles">
+          <a class="article-archive-link" href={withBase("/articles")}>
             <span>浏览全部文章</span>
             <span aria-hidden="true">→</span>
           </a>
@@ -68,12 +69,12 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
     <section class="home-section recent-essays-section">
       <div class="container section-head">
         <h2 class="section-title">最近随笔</h2>
-        <a class="section-head-link" href="/essays">查看更多</a>
+        <a class="section-head-link" href={withBase("/essays")}>查看更多</a>
       </div>
       <div class="container essays-grid">
         {recentEssays.map((essay) => (
           <EssayListCard
-            href={`/essays/${essay.slug}`}
+            href={withBase(`/essays/${essay.slug}`)}
             title={essay.data.title}
             dateLabel={essay.data.date.toLocaleDateString("zh-CN")}
             cover={essay.data.cover?.src}
@@ -86,12 +87,12 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
   <section class="home-section">
     <div class="container section-head">
       <h2 class="section-title">本周计划</h2>
-      <a class="section-head-link" href="/plans">查看更多</a>
+      <a class="section-head-link" href={withBase("/plans")}>查看更多</a>
     </div>
     <div class="container plan-wrap">
       {latestPlan && (
         <PlanSummary
-          href={`/plans/${latestPlan.slug}`}
+          href={withBase(`/plans/${latestPlan.slug}`)}
           title={latestPlan.data.title}
           week={latestPlan.data.week}
           summary={latestPlan.data.summary}

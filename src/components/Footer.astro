@@ -1,9 +1,11 @@
 ---
+import { withBase } from "../data/site";
+
 const contactLinks = [
-  { name: "X", href: "https://x.com/", icon: "/images/X.png", tone: "original" },
-  { name: "Bilibili", href: "https://www.bilibili.com/", icon: "/images/bilibili.png" },
-  { name: "GitHub", href: "https://github.com/", icon: "/images/github.png" },
-  { name: "Gmail", href: "https://mail.google.com/", icon: "/images/gmail.png" }
+  { name: "X", href: "https://x.com/", icon: withBase("/images/X.png"), tone: "original" },
+  { name: "Bilibili", href: "https://www.bilibili.com/", icon: withBase("/images/bilibili.png") },
+  { name: "GitHub", href: "https://github.com/", icon: withBase("/images/github.png") },
+  { name: "Gmail", href: "https://mail.google.com/", icon: withBase("/images/gmail.png") }
 ];
 ---
 
@@ -28,7 +30,7 @@ const contactLinks = [
       ))}
     </nav>
 
-    <a class="footer-mark" href="/">
+    <a class="footer-mark" href={withBase("/")}>
       <span class="footer-mark-rule" aria-hidden="true"></span>
       <span class="footer-mark-text">fze's journal</span>
       <span class="footer-mark-rule" aria-hidden="true"></span>

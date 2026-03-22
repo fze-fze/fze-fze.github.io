@@ -6,6 +6,11 @@
 
 - 建好了 `首页 / 文章 / 随笔 / 每周计划` 四个主板块
 - 内容统一放在 `src/content/articles`、`src/content/essays`、`src/content/plans`
+- 补上了 GitHub Pages 部署配置：
+  - `astro.config.mjs` 现在使用正式站点地址 `https://fze-fze.github.io`
+  - 生产环境自动使用 `base: "/NewBlog"`，本地开发保持根路径 `/`
+  - 新增 [.github/workflows/deploy.yml](/Users/fze/Documents/fze/code/NewBlog/.github/workflows/deploy.yml)，推送到 `main` 后自动构建并发布
+  - 站内导航、列表跳转和页脚图标统一改成基于 `BASE_URL` 生成，本地与线上不再需要手动补 `/NewBlog`
 - 首页改成更稳的编辑式结构：
   - 左侧主文章，右侧次级入口
   - 最近随笔独立展示
@@ -36,6 +41,7 @@
 │  ├─ styles/            # 全局样式
 │  └─ content.config.ts  # 内容 schema 校验
 ├─ astro.config.mjs
+├─ .github/workflows/deploy.yml
 └─ package.json
 ```
 
@@ -47,6 +53,54 @@ npm run dev
 ```
 
 默认本地地址一般是 `http://localhost:4321`。
+
+## 部署到 GitHub Pages
+
+这个仓库已经按 `GitHub Pages + GitHub Actions` 的方式配好了，目标地址是：
+
+`https://fze-fze.github.io/NewBlog/`
+
+你只需要做这几步：
+
+1. 把本地代码推到 GitHub：
+
+```bash
+git add .
+git commit -m "chore: prepare github pages deploy"
+git push origin main
+```
+
+2. 打开仓库设置页：
+
+`GitHub -> NewBlog -> Settings -> Pages`
+
+3. 在 `Build and deployment` 里确认：
+
+- `Source` 选择 `GitHub Actions`
+
+4. 回到仓库的 `Actions` 标签页，等 `Deploy to GitHub Pages` 这个工作流跑完
+
+5. 部署成功后，访问：
+
+`https://fze-fze.github.io/NewBlog/`
+
+### 以后怎么更新
+
+以后每次你写完新文章或改完页面，只要：
+
+```bash
+git add .
+git commit -m "feat: update blog content"
+git push origin main
+```
+
+GitHub 会自动重新部署，不需要你手动上传 `dist`。
+
+### 一个很关键的说明
+
+- 现在这是“仓库 Pages”，所以线上地址里会带 `/NewBlog`
+- 项目已经改成“开发环境走 `/`、生产环境自动带 `/NewBlog`”的模式，本地访问不用手动补前缀
+- 如果将来你改成单独的个人主页仓库，比如 `fze-fze.github.io`，那时要把 `base` 去掉，并把 `site` 改成新的正式域名
 
 ## 怎么新增文章
 

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../data/site";
 import SectionShell from "../../components/SectionShell.astro";
 import ArticleSummary from "../../components/ArticleSummary.astro";
 
@@ -15,7 +16,7 @@ const essays = (await getCollection("essays", ({ data }) => !data.draft)).sort(
     <div class="container archive-grid">
       {essays.map((essay) => (
         <ArticleSummary
-          href={`/essays/${essay.slug}`}
+          href={withBase(`/essays/${essay.slug}`)}
           title={essay.data.title}
           description={essay.data.description}
           dateLabel={essay.data.date.toLocaleDateString("zh-CN")}
