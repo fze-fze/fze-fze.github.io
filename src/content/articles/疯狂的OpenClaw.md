@@ -2,6 +2,8 @@
 title: 疯狂的OpenClaw
 description: 2026开年，一款名叫 OpenClaw 的 AI agent 迅速席卷全球，成为继 ChatGPT 和 DeepSeek 之后第三个现象级爆火的 AI 产品。
 date: 2026.03.15
+tags:
+  - 傍晚
 draft: false
 ---
 

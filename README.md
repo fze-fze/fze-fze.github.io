@@ -9,12 +9,20 @@
 - 补上了 GitHub Pages 部署配置：
   - `astro.config.mjs` 现在使用正式站点地址 `https://fze-fze.github.io`
   - 仓库已切到用户主页仓库模式，不再使用 `/NewBlog` 前缀
-  - 新增 [.github/workflows/deploy.yml](/Users/fze/Documents/fze/code/NewBlog/.github/workflows/deploy.yml)，推送到 `main` 后自动构建并发布
+  - Git 远端已同步为 `fze-fze.github.io.git`，避免继续依赖旧仓库名的重定向地址
+  - 新增 [.github/workflows/deploy.yml](/Users/fze/Documents/fze/code/fze-fze.github.io/.github/workflows/deploy.yml)，推送到 `main` 后自动构建并发布
   - 站内导航、列表跳转和页脚图标统一基于 `BASE_URL` 生成，路径在本地和线上都能保持一致
 - 首页改成更稳的编辑式结构：
   - 左侧主文章，右侧次级入口
   - 最近随笔独立展示
   - 每周计划单独归档
+  - 首页主标题 `welcome to fze's journal` 增加了轻量打字机效果，并自动尊重系统的“减少动态效果”设置
+- 文章列表与随笔列表的卡片头部不再固定显示 `Read`，而是优先显示第一个 tag，适合用 `深夜 / 清晨` 这类时间感标签来表达阅读氛围
+- `plans` 现在只保留更必要的信息：`week` 用于卡片顶部显示，首页卡片和详情页摘要会自动提取正文里“本周目标”的第一段，`goal` 只负责待办项及完成状态
+- 首页“本周计划”左侧卡片不再重复展示 todo 项，只保留 `week / title / status / 本周目标摘要`，右侧单独负责 Todo List
+- 计划详情页标题下的摘要已隐藏；首页计划卡片会直接展开正文里“本周目标”这一节的全部内容，而不是只截取一句
+- 关闭了 Astro 开发环境左下角自带的 dev toolbar，避免它干扰页面预览
+- `plans` 的 `goal` 现在支持两态任务项：每个条目可写 `text + done`，首页 Todo List 和计划卡片会直接体现完成状态与进度
 - 清理了一轮仓库冗余内容：
   - 删除了不再属于主站的信息架构的 `sticky` 实验页和相关组件
   - 删除了重复的根目录 `images/` 资源目录，保留正式使用的 `public/images/`
@@ -104,7 +112,7 @@ GitHub 会自动重新部署，不需要你手动上传 `dist`。
 
 ## 怎么新增文章
 
-1. 复制 [src/content/articles/template.md](/Users/fze/Documents/fze/code/NewBlog/src/content/articles/template.md)
+1. 复制 [src/content/articles/template.md](/Users/fze/Documents/fze/code/fze-fze.github.io/src/content/articles/template.md)
 2. 改成你想要的 slug，例如 `my-first-post.md`
 3. 填好 frontmatter：
 
@@ -124,7 +132,7 @@ draft: false
 
 ## 怎么新增随笔
 
-1. 复制 [src/content/essays/essay-template.md](/Users/fze/Documents/fze/code/NewBlog/src/content/essays/essay-template.md)
+1. 复制 [src/content/essays/essay-template.md](/Users/fze/Documents/fze/code/fze-fze.github.io/src/content/essays/essay-template.md)
 2. 改成你想要的 slug，例如 `small-note.md`
 3. 填好 frontmatter：
 
@@ -144,20 +152,18 @@ draft: false
 
 ## 怎么新增每周计划
 
-1. 复制 [src/content/plans/template.md](/Users/fze/Documents/fze/code/NewBlog/src/content/plans/template.md)
+1. 复制 [src/content/plans/template.md](/Users/fze/Documents/fze/code/fze-fze.github.io/src/content/plans/template.md)
 2. 改名，例如 `2026-week-13.md`
 3. 填好 frontmatter：
 
 ```md
 ---
 title: 第 13 周计划 / 本周主题
-week: 2026 · Week 13
+week: Week 13
 status: active
-summary: 一句话总结这周重点
-goals:
-  - 目标一
-review:
-  - 一条复盘
+goal:
+  - text: 目标一
+    done: false
 draft: false
 ---
 ```
@@ -179,8 +185,18 @@ draft: false
 
 ### `plans`
 
-- 必填：`title` `week` `status` `summary`
-- 可选：`goals` `review` `draft`
+- 必填：`title` `status`
+- 推荐：`week` `goal`
+- 可选：`draft`
+- `goal` 推荐写法：
+
+```md
+goal:
+  - text: 完成首页改版
+    done: true
+  - text: 写完一篇文章
+    done: false
+```
 - `status` 只能是：`planned` / `active` / `done`
 
 如果 frontmatter 写错，Astro 会在开发或构建时直接报错，方便尽早发现问题。

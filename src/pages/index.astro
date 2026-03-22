@@ -20,6 +20,31 @@ const recentEssays = (await getCollection("essays", ({ data }) => !data.draft))
 
 const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
   .sort((a, b) => b.slug.localeCompare(a.slug))[0];
+
+const extractPlanSectionLines = (body?: string) => {
+  if (!body) return [];
+
+  const lines = body
+    .split("\n")
+    .map((line) => line.trim());
+
+  let inGoalSection = false;
+  const sectionLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("## ")) {
+      if (inGoalSection) break;
+      inGoalSection = line.includes("本周目标");
+      continue;
+    }
+
+    if (!inGoalSection) continue;
+    if (!line) continue;
+    sectionLines.push(line);
+  }
+
+  return sectionLines;
+};
 ---
 
 <BaseLayout title="fze's journal | 极简静态博客" description="首页、文章和每周计划统一于同一套白底黑字的极简视觉系统。">
@@ -95,9 +120,8 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
           href={withBase(`/plans/${latestPlan.slug}`)}
           title={latestPlan.data.title}
           week={latestPlan.data.week}
-          summary={latestPlan.data.summary}
+          summaryLines={extractPlanSectionLines(latestPlan.body)}
           status={latestPlan.data.status}
-          goals={latestPlan.data.goals}
         />
       )}
       <div class="notes-panel">
@@ -105,10 +129,10 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
           <h3>Todo List</h3>
         </div>
         <ul class="todo-list">
-          {(latestPlan?.data.goals ?? []).slice(0, 4).map((goal) => (
-            <li>
+          {(latestPlan?.data.goal ?? []).slice(0, 4).map((item) => (
+            <li class:list={{ "is-done": item.done }}>
               <span class="todo-check" aria-hidden="true"></span>
-              <span>{goal}</span>
+              <span>{item.text}</span>
             </li>
           ))}
         </ul>
@@ -248,6 +272,7 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
   }
 
   .todo-check {
+    position: relative;
     width: 1rem;
     height: 1rem;
     flex: 0 0 1rem;
@@ -255,6 +280,32 @@ const latestPlan = (await getCollection("plans", ({ data }) => !data.draft))
     border-radius: 999px;
     border: 1px solid var(--line-strong);
     background: var(--bg-elevated);
+  }
+
+  .todo-list li.is-done {
+    color: var(--text-soft);
+  }
+
+  .todo-list li.is-done .todo-check {
+    border-color: #111111;
+    background: #111111;
+  }
+
+  .todo-list li.is-done .todo-check::after {
+    content: "";
+    position: absolute;
+    left: 0.31rem;
+    top: 0.14rem;
+    width: 0.22rem;
+    height: 0.46rem;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+    transform: rotate(45deg);
+  }
+
+  .todo-list li.is-done span:last-child {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
   }
 
   @media (max-width: 900px) {

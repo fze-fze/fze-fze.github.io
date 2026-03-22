@@ -8,6 +8,28 @@ import PlanSummary from "../../components/PlanSummary.astro";
 const plans = (await getCollection("plans", ({ data }) => !data.draft)).sort((a, b) =>
   b.slug.localeCompare(a.slug)
 );
+
+const extractPlanSummary = (body: string, title: string) => {
+  const lines = body
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  let inGoalSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ")) {
+      inGoalSection = line.includes("本周目标");
+      continue;
+    }
+
+    if (!inGoalSection) continue;
+    if (line.startsWith("- ") || line.startsWith("* ") || /^\d+\./.test(line)) continue;
+    return line;
+  }
+
+  return `${title} 的公开记录。`;
+};
 ---
 
 <BaseLayout title="每周计划 | fze's journal" description="公开周计划与周复盘归档。">
@@ -19,9 +41,8 @@ const plans = (await getCollection("plans", ({ data }) => !data.draft)).sort((a,
           href={withBase(`/plans/${plan.slug}`)}
           title={plan.data.title}
           week={plan.data.week}
-          summary={plan.data.summary}
+          summary={extractPlanSummary(plan.body, plan.data.title)}
           status={plan.data.status}
-          goals={plan.data.goals}
         />
       ))}
     </div>

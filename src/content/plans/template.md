@@ -1,30 +1,22 @@
 ---
-title: 第 X 周计划 / 这里填写本周主题
-week: 2026 · Week XX
+title: 第 X 周计划 
+week: Week XX
 status: planned
-summary: 用一两句话概括这周最核心的目标和判断。
-goals:
-  - 目标一
-  - 目标二
-  - 目标三
-review:
-  - 这里写本周复盘
-  - 这里写下周衔接
+goal:
+  - text: 目标一
+    done: false
+  - text: 目标二
+    done: false
+  - text: 目标三
+    done: true
 draft: true
 ---
 
 ## 本周目标
 
-- 
+这里展开写本周目标的完整想法。
 
-## 推进中
 
-- 
 
-## 已完成
+## 上周复盘 
 
-- 
-
-## 复盘 / 下周衔接
-
-- 

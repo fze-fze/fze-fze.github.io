@@ -8,18 +8,21 @@ interface Props {
 }
 
 const { href, title, description, dateLabel, tags = [] } = Astro.props;
+const [primaryTag, ...secondaryTags] = tags;
 ---
 
 <a class="summary" href={href}>
   <div class="summary-head">
     <p>{dateLabel}</p>
-    <span>Read</span>
+    <span>{primaryTag ?? "Read"}</span>
   </div>
   <h3>{title}</h3>
   <p class="summary-copy">{description}</p>
-  <ul class="meta-list">
-    {tags.map((tag) => <li class="meta-pill">{tag}</li>)}
-  </ul>
+  {secondaryTags.length > 0 && (
+    <ul class="meta-list">
+      {secondaryTags.map((tag) => <li class="meta-pill">{tag}</li>)}
+    </ul>
+  )}
 </a>
 
 <style>

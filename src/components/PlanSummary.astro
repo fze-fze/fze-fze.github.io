@@ -2,13 +2,13 @@
 interface Props {
   href: string;
   title: string;
-  week: string;
-  summary: string;
+  week?: string;
+  summary?: string;
+  summaryLines?: string[];
   status: string;
-  goals?: string[];
 }
 
-const { href, title, week, summary, status, goals = [] } = Astro.props;
+const { href, title, week, summary, summaryLines = [], status } = Astro.props;
 const statusLabel = {
   planned: "准备中",
   active: "进行中",
@@ -18,14 +18,19 @@ const statusLabel = {
 
 <a class="plan-summary" href={href}>
   <div class="plan-top">
-    <p>{week}</p>
-    <span>{statusLabel}</span>
+    <p>{week ?? "Week XX"}</p>
+    <div class="plan-badges">
+      <span>{statusLabel}</span>
+    </div>
   </div>
   <h3>{title}</h3>
-  <p>{summary}</p>
-  <ul>
-    {goals.slice(0, 3).map((goal) => <li>{goal}</li>)}
-  </ul>
+  {summaryLines.length > 0 ? (
+    <div class="plan-copy">
+      {summaryLines.map((line) => <p>{line}</p>)}
+    </div>
+  ) : (
+    summary && <p>{summary}</p>
+  )}
 </a>
 
 <style>
@@ -53,6 +58,13 @@ const statusLabel = {
     color: var(--text-soft);
   }
 
+  .plan-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
   .plan-top p,
   .plan-top span,
   .plan-summary h3,
@@ -74,13 +86,12 @@ const statusLabel = {
     background: var(--bg-elevated);
   }
 
-  .plan-summary p,
-  .plan-summary ul {
-    color: var(--text-soft);
+  .plan-copy {
+    display: grid;
+    gap: 0.75rem;
   }
 
-  .plan-summary ul {
-    margin: 0;
-    padding-left: 1rem;
+  .plan-summary p {
+    color: var(--text-soft);
   }
 </style>

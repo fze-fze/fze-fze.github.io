@@ -3,7 +3,7 @@ import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   dateLabel?: string;
   meta?: string[];
 }
@@ -97,7 +97,7 @@ const titleLines = splitTitleIntoTwoLines(title);
         <span class="title-line">{line}</span>
       ))}
     </h1>
-    <p class="fade-in-delay">{description}</p>
+    {description && <p class="fade-in-delay">{description}</p>}
     <ul class="meta-list fade-in-delay">
       {dateLabel && <li class="meta-pill">{dateLabel}</li>}
       {meta.map((item) => <li class="meta-pill">{item}</li>)}
