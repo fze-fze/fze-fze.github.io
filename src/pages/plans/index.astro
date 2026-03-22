@@ -4,10 +4,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { withBase } from "../../data/site";
 import SectionShell from "../../components/SectionShell.astro";
 import PlanSummary from "../../components/PlanSummary.astro";
+import HabitCheckin from "../../components/HabitCheckin.astro";
+import { sleepCheckins } from "../../data/sleepCheckins";
+import { mindfulnessCheckins } from "../../data/mindfulnessCheckins";
+import { sortPlans } from "../../utils/content";
 
-const plans = (await getCollection("plans", ({ data }) => !data.draft)).sort((a, b) =>
-  b.slug.localeCompare(a.slug)
-);
+const plans = sortPlans(await getCollection("plans", ({ data }) => !data.draft));
 
 const extractPlanSummary = (body: string, title: string) => {
   const lines = body
@@ -32,8 +34,12 @@ const extractPlanSummary = (body: string, title: string) => {
 };
 ---
 
-<BaseLayout title="每周计划 | fze's journal" description="公开周计划与周复盘归档。">
+<BaseLayout title="计划 | fze's journal" description="月度打卡与每周计划归档。">
   <section class="listing">
+    <div class="container habit-grid">
+      <HabitCheckin title="早睡打卡" records={sleepCheckins} />
+      <HabitCheckin title="正念打卡" records={mindfulnessCheckins} />
+    </div>
     <SectionShell title="每周计划" />
     <div class="container archive-grid">
       {plans.map((plan) => (
@@ -60,7 +66,24 @@ const extractPlanSummary = (body: string, title: string) => {
     gap: 1rem;
   }
 
+  .habit-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 3.2rem;
+    row-gap: 1rem;
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .habit-grid > * {
+    min-width: 0;
+    width: 100%;
+  }
+
   @media (max-width: 900px) {
+    .habit-grid {
+      grid-template-columns: 1fr;
+    }
+
     .archive-grid {
       grid-template-columns: 1fr;
     }

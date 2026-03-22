@@ -11,25 +11,25 @@ const planGoalItem = z
   .transform((item) => (typeof item === "string" ? { text: item, done: false } : item));
 
 const articles = defineCollection({
-  schema: ({ image }) =>
+  schema: () =>
     z.object({
       title: z.string(),
       description: z.string(),
       date: z.coerce.date(),
       tags: z.array(z.string()).default([]),
-      cover: image().optional(),
+      cover: z.string().optional(),
       draft: z.boolean().default(false)
     })
 });
 
 const essays = defineCollection({
-  schema: ({ image }) =>
+  schema: () =>
     z.object({
       title: z.string(),
       description: z.string(),
       date: z.coerce.date(),
       tags: z.array(z.string()).default([]),
-      cover: image().optional(),
+      cover: z.string().optional(),
       draft: z.boolean().default(false)
     })
 });

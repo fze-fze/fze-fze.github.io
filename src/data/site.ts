@@ -20,5 +20,5 @@ export const navigation = [
   { href: withBase("/"), label: "首页" },
   { href: withBase("/articles"), label: "文章" },
   { href: withBase("/essays"), label: "随笔" },
-  { href: withBase("/plans"), label: "每周计划" }
+  { href: withBase("/plans"), label: "计划" }
 ];

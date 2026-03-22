@@ -1,0 +1,124 @@
+---
+interface Props {
+  title: string;
+  records: Record<string, number[]>;
+}
+
+const { title, records } = Astro.props;
+
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth() + 1;
+const monthKey = `${year}-${String(month).padStart(2, "0")}`;
+const firstDay = new Date(year, month - 1, 1);
+const daysInMonth = new Date(year, month, 0).getDate();
+const completedDays = new Set((records[monthKey] ?? []).filter((day) => day >= 1 && day <= daysInMonth));
+const monthLabel = new Intl.DateTimeFormat("en-US", { month: "long" }).format(firstDay);
+const cells = Array.from({ length: daysInMonth }, (_, index) => {
+  const day = index + 1;
+  return {
+    day,
+    done: completedDays.has(day)
+  };
+});
+---
+
+<section class="habit-checkin">
+  <div class="habit-checkin-head">
+    <h2 class="section-title">{title}</h2>
+  </div>
+
+  <div class="habit-checkin-card">
+    <div class="habit-checkin-body">
+      <span class="habit-checkin-month">{monthLabel}</span>
+      <div class="habit-checkin-grid" role="img" aria-label={`${monthLabel} ${title}进度`}>
+        {cells.map((cell) => (
+          <span
+            class:list={["habit-checkin-cell", cell.done ? "is-done" : "is-muted"]}
+            title={`${monthKey}-${String(cell.day).padStart(2, "0")}`}
+          ></span>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .habit-checkin {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .habit-checkin-head {
+    display: flex;
+    align-items: baseline;
+    padding-bottom: 0.1rem;
+  }
+
+  .habit-checkin-month {
+    color: var(--text-soft);
+    font-size: 1rem;
+    letter-spacing: -0.03em;
+    justify-self: center;
+  }
+
+  .habit-checkin-card {
+    display: grid;
+    width: 100%;
+    min-height: 100%;
+    max-width: 23rem;
+    padding: 1.05rem 1.05rem 1.1rem;
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+  }
+
+  .habit-checkin-body {
+    display: grid;
+    gap: 1.2rem;
+    width: fit-content;
+    margin: 0 auto;
+    justify-items: center;
+  }
+
+  .habit-checkin-grid {
+    display: grid;
+    grid-template-columns: repeat(7, max-content);
+    justify-content: start;
+    gap: 0.52rem 2.18rem;
+  }
+
+  .habit-checkin-cell {
+    display: block;
+    width: 0.62rem;
+    height: 0.62rem;
+    justify-self: center;
+    border-radius: 999px;
+    background: #cfcfcf;
+  }
+
+  .habit-checkin-cell.is-done {
+    background: #111111;
+  }
+
+  .habit-checkin-cell.is-muted {
+    background: #cfcfcf;
+  }
+
+  @media (max-width: 720px) {
+    .habit-checkin-card {
+      max-width: none;
+      padding: 1rem;
+    }
+
+    .habit-checkin-grid {
+      gap: 0.42rem 1.08rem;
+    }
+
+    .habit-checkin-cell {
+      width: 0.52rem;
+      height: 0.52rem;
+    }
+  }
+</style>

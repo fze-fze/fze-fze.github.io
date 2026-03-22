@@ -4,6 +4,7 @@ description: 我喜欢极简主义的风格，唯有黑白最能突出重点
 date: 2026-03-22
 tags:
   - 置顶🔝
+cover: /images/covers/articles/about-me.jpg
 draft: false
 ---
 

@@ -150,9 +150,10 @@ const titleLines = splitTitleIntoTwoLines(title);
   }
 
   .article-shell {
+    width: min(100%, 56rem);
     border-radius: 24px;
     padding: clamp(1.2rem, 2vw, 1.8rem) clamp(1rem, 3vw, 3rem);
-    margin-bottom: clamp(2.2rem, 5vw, 4rem);
+    margin: 0 auto clamp(2.2rem, 5vw, 4rem);
     background: var(--panel);
     border: 1px solid var(--line);
   }
@@ -173,6 +174,7 @@ const titleLines = splitTitleIntoTwoLines(title);
   .article-shell :global(blockquote) {
     color: var(--text);
     font-size: 1.02rem;
+    line-height: 1.9;
   }
 
   .article-shell :global(ul),
@@ -207,5 +209,28 @@ const titleLines = splitTitleIntoTwoLines(title);
   .article-shell :global(pre code) {
     background: transparent;
     padding: 0;
+  }
+
+  .article-shell :global(figure) {
+    margin: 2rem auto;
+    display: grid;
+    justify-items: center;
+    gap: 0.8rem;
+  }
+
+  .article-shell :global(img) {
+    margin: 2rem auto;
+  }
+
+  .article-shell :global(figure img) {
+    margin: 0 auto;
+  }
+
+  .article-shell :global(figcaption) {
+    max-width: 42rem;
+    color: var(--text-soft);
+    font-size: 0.94rem;
+    line-height: 1.7;
+    text-align: center;
   }
 </style>
