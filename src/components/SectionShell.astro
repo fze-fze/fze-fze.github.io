@@ -1,0 +1,21 @@
+---
+interface Props {
+  title: string;
+  copy: string;
+}
+
+const { title, copy } = Astro.props;
+---
+
+<div class="section-shell container">
+  <h2 class="section-title">{title}</h2>
+  <p class="section-copy">{copy}</p>
+</div>
+
+<style>
+  .section-shell {
+    display: grid;
+    gap: 0.85rem;
+    padding-bottom: 1.5rem;
+  }
+</style>

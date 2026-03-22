@@ -1,0 +1,66 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  dateLabel: string;
+  tags?: string[];
+}
+
+const { href, title, description, dateLabel, tags = [] } = Astro.props;
+---
+
+<a class="summary" href={href}>
+  <div class="summary-head">
+    <p>{dateLabel}</p>
+    <span>Read</span>
+  </div>
+  <h3>{title}</h3>
+  <p class="summary-copy">{description}</p>
+  <ul class="meta-list">
+    {tags.map((tag) => <li class="meta-pill">{tag}</li>)}
+  </ul>
+</a>
+
+<style>
+  .summary {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.3rem;
+    border-radius: 22px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .summary:hover,
+  .summary:focus-visible {
+    border-color: var(--line-strong);
+    background: var(--panel-soft);
+  }
+
+  .summary-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--text-soft);
+  }
+
+  .summary-head p,
+  .summary-head span,
+  .summary h3,
+  .summary-copy {
+    margin: 0;
+  }
+
+  .summary h3 {
+    font-size: 1.2rem;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+
+  .summary-copy {
+    color: var(--text-soft);
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  align?: "left" | "center";
+}
+
+const {
+  eyebrow = "Sticky section",
+  title,
+  description,
+  align = "left"
+} = Astro.props;
+---
+
+<div class={`animated-panel ${align}`}>
+  <div class="copy-block">
+    <p class="eyebrow">{eyebrow}</p>
+    <h2>{title}</h2>
+    <p class="description">{description}</p>
+  </div>
+
+  <div class="visual-block">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .animated-panel {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .animated-panel.center {
+    text-align: center;
+    justify-items: center;
+  }
+
+  .copy-block {
+    max-width: 44rem;
+    transform:
+      translate3d(
+        0,
+        calc((1 - var(--section-progress)) * 2.5rem),
+        0
+      )
+      scale(calc(0.96 + var(--section-progress) * 0.04));
+    opacity: calc(0.35 + var(--section-progress) * 0.65);
+    transition: transform 120ms linear, opacity 120ms linear;
+    will-change: transform, opacity;
+  }
+
+  .eyebrow,
+  .description,
+  h2 {
+    margin: 0;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: var(--text-soft);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: clamp(2.8rem, 2rem + 3vw, 5rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    max-width: 38rem;
+    color: var(--text-soft);
+    font-size: 1.05rem;
+  }
+
+  .visual-block {
+    width: 100%;
+  }
+</style>

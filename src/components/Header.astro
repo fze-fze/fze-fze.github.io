@@ -1,0 +1,161 @@
+---
+import { navigation, siteMeta } from "../data/site";
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container shell">
+    <a class="brand" href="/">
+      <span class="brand-text">
+        <strong>{siteMeta.title}</strong>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="主导航">
+      {navigation.map((item) => (
+        <a class={pathname === item.href ? "is-active" : undefined} href={item.href}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <details class="mobile-nav">
+      <summary aria-label="打开导航">
+        <span></span>
+        <span></span>
+      </summary>
+      <nav aria-label="移动端导航">
+        {navigation.map((item) => (
+          <a class={pathname === item.href ? "is-active" : undefined} href={item.href}>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 0.9rem 0 0;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+  }
+
+  .shell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .brand-text {
+    display: block;
+  }
+
+  .brand-text strong {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: clamp(1.35rem, 1.05rem + 0.95vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    display: inline-block;
+    text-transform: lowercase;
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .desktop-nav a,
+  .mobile-nav nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    color: var(--text-soft);
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    border: 1px solid transparent;
+  }
+
+  .desktop-nav a:hover,
+  .desktop-nav a:focus-visible,
+  .mobile-nav nav a:hover,
+  .mobile-nav nav a:focus-visible,
+  .desktop-nav a.is-active,
+  .mobile-nav nav a.is-active {
+    color: var(--text);
+    background: var(--bg-elevated);
+    border-color: var(--line);
+  }
+
+  .mobile-nav {
+    display: none;
+    position: relative;
+  }
+
+  .mobile-nav summary {
+    list-style: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+  }
+
+  .mobile-nav summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-nav summary span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--text);
+    border-radius: 999px;
+    margin: 2px 0;
+  }
+
+  .mobile-nav nav {
+    position: absolute;
+    top: calc(100% + 0.65rem);
+    right: 0;
+    display: grid;
+    gap: 0.35rem;
+    min-width: 11rem;
+    padding: 0.6rem;
+    border-radius: 18px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  @media (max-width: 760px) {
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-nav {
+      display: block;
+    }
+  }
+</style>

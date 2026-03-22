@@ -1,0 +1,131 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import StickySection from "../components/StickySection.astro";
+import AnimatedContentPanel from "../components/AnimatedContentPanel.astro";
+---
+
+<BaseLayout title="Sticky Engineering | fze's journal" description="更工程化的 sticky section 版本">
+  <main class="engineering-page">
+    <StickySection sectionHeight="260svh" stickyTop="5.5rem">
+      <div class="container">
+        <div class="engineering-shell">
+          <AnimatedContentPanel
+            eyebrow="engineering version"
+            title="Sticky storytelling built from reusable pieces"
+            description="外层 section 只负责滚动空间，sticky 内容区只负责停留在屏幕内，动画由标准化 progress 驱动。"
+          >
+            <div class="visual-stack" slot="">
+              <div class="hero-surface">
+                <div class="hero-surface__frame"></div>
+                <div class="hero-surface__chip">progress 0-1</div>
+              </div>
+            </div>
+          </AnimatedContentPanel>
+        </div>
+      </div>
+    </StickySection>
+
+    <section class="container engineering-notes">
+      <div class="note-card">
+        <h3>StickySection</h3>
+        <p>外层提供 200vh 到 300vh 的空间，内层 sticky 区固定在屏幕里。</p>
+      </div>
+      <div class="note-card">
+        <h3>useScrollProgress</h3>
+        <p>用 rAF 按需刷新，IntersectionObserver 只负责激活与暂停。</p>
+      </div>
+      <div class="note-card">
+        <h3>Animated Content</h3>
+        <p>所有动效都基于 CSS variables，避免 React state 带来的滚动抖动。</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .engineering-page {
+    padding-top: 1rem;
+  }
+
+  .engineering-shell {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .visual-stack {
+    min-height: 24rem;
+    border-radius: 36px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, #fff, #fafafa);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hero-surface {
+    position: absolute;
+    inset: 1.2rem;
+    border-radius: 28px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background:
+      radial-gradient(circle at 20% 24%, rgba(17, 17, 17, 0.04), transparent 22%),
+      radial-gradient(circle at 72% 34%, rgba(17, 17, 17, 0.05), transparent 20%),
+      linear-gradient(180deg, #ffffff, #f7f7f7);
+    transform:
+      translate3d(0, calc(var(--section-progress) * -18px), 0)
+      scale(calc(0.97 + var(--section-progress) * 0.03));
+    opacity: calc(0.5 + var(--section-progress) * 0.5);
+    transition: transform 120ms linear, opacity 120ms linear;
+    will-change: transform, opacity;
+  }
+
+  .hero-surface__frame {
+    position: absolute;
+    inset: 1.2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(17, 17, 17, 0.05);
+  }
+
+  .hero-surface__chip {
+    position: absolute;
+    left: 1.4rem;
+    bottom: 1.4rem;
+    padding: 0.8rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background: rgba(255, 255, 255, 0.88);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .engineering-notes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    padding-bottom: 4rem;
+  }
+
+  .note-card {
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    padding: 1.2rem;
+    background: #fff;
+  }
+
+  .note-card h3,
+  .note-card p {
+    margin: 0;
+  }
+
+  .note-card h3 {
+    margin-bottom: 0.6rem;
+  }
+
+  .note-card p {
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 900px) {
+    .engineering-notes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

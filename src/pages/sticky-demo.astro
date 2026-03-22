@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import StickySection from "../components/StickySection.astro";
+import AnimatedContentPanel from "../components/AnimatedContentPanel.astro";
+---
+
+<BaseLayout title="Sticky Demo | fze's journal" description="最小可运行的 sticky section demo">
+  <main class="demo-page">
+    <StickySection sectionHeight="220svh" stickyTop="5.5rem">
+      <div class="container">
+        <AnimatedContentPanel
+          eyebrow="minimal demo"
+          title="Sticky section with native scroll progress"
+          description="只用 position: sticky、requestAnimationFrame 和 IntersectionObserver，让 section 自己提供滚动空间。"
+        >
+          <div class="minimal-visual" slot="">
+            <div class="minimal-card layer-a"></div>
+            <div class="minimal-card layer-b"></div>
+            <div class="minimal-card layer-c"></div>
+          </div>
+        </AnimatedContentPanel>
+      </div>
+    </StickySection>
+
+    <StickySection sectionHeight="220svh" stickyTop="5.5rem">
+      <div class="container">
+        <AnimatedContentPanel
+          eyebrow="motion"
+          title="Progress drives transform, opacity, and scale"
+          description="进度被标准化成 0 到 1，动画只改 transform 和 opacity，不去频繁碰 layout 属性。"
+        >
+          <div class="minimal-visual" slot="">
+            <div class="minimal-card layer-d"></div>
+            <div class="minimal-card layer-e"></div>
+            <div class="minimal-card layer-f"></div>
+          </div>
+        </AnimatedContentPanel>
+      </div>
+    </StickySection>
+  </main>
+</BaseLayout>
+
+<style>
+  .demo-page {
+    padding-top: 1rem;
+  }
+
+  .minimal-visual {
+    position: relative;
+    min-height: 22rem;
+    border-radius: 32px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, #fff, #fafafa);
+    overflow: hidden;
+  }
+
+  .minimal-card {
+    position: absolute;
+    inset: auto;
+    border-radius: 24px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background: rgba(17, 17, 17, 0.03);
+    transition: transform 120ms linear, opacity 120ms linear;
+    will-change: transform, opacity;
+  }
+
+  .layer-a,
+  .layer-d {
+    width: 48%;
+    height: 54%;
+    left: 7%;
+    top: 10%;
+    transform: translate3d(0, calc(var(--section-progress) * 24px), 0)
+      scale(calc(0.94 + var(--section-progress) * 0.06));
+    opacity: calc(0.2 + var(--section-progress) * 0.8);
+  }
+
+  .layer-b,
+  .layer-e {
+    width: 26%;
+    height: 32%;
+    right: 10%;
+    top: 18%;
+    transform: translate3d(0, calc(var(--section-progress) * -18px), 0);
+    opacity: calc(0.1 + var(--section-progress) * 0.9);
+  }
+
+  .layer-c,
+  .layer-f {
+    width: 34%;
+    height: 22%;
+    right: 16%;
+    bottom: 14%;
+    transform: translate3d(calc(var(--section-progress) * -20px), 0, 0);
+    opacity: calc(0.15 + var(--section-progress) * 0.85);
+  }
+
+  .layer-d {
+    border-radius: 999px;
+  }
+
+  .layer-e {
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.05);
+  }
+
+  .layer-f {
+    border-radius: 999px;
+  }
+</style>

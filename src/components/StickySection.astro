@@ -1,0 +1,60 @@
+---
+interface Props {
+  sectionHeight?: string;
+  stickyTop?: string;
+  className?: string;
+}
+
+const {
+  sectionHeight = "240svh",
+  stickyTop = "0px",
+  className = ""
+} = Astro.props;
+---
+
+<section
+  class={`sticky-section ${className}`.trim()}
+  data-sticky-section
+  style={`--section-height:${sectionHeight}; --sticky-top:${stickyTop};`}
+>
+  <div class="sticky-inner">
+    <div class="sticky-stage">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { initStickySections } from "../lib/stickySections";
+
+  initStickySections();
+</script>
+
+<style>
+  .sticky-section {
+    --section-progress: 0;
+    --section-progress-inv: 1;
+    min-height: var(--section-height);
+    position: relative;
+  }
+
+  .sticky-inner {
+    position: sticky;
+    top: var(--sticky-top);
+    height: calc(100svh - var(--sticky-top));
+    display: flex;
+    align-items: center;
+  }
+
+  .sticky-stage {
+    width: 100%;
+  }
+
+  @media (max-width: 720px) {
+    .sticky-inner {
+      height: calc(100svh - var(--sticky-top));
+      align-items: flex-start;
+      padding-top: 2rem;
+    }
+  }
+</style>
