@@ -3,5 +3,5 @@
 // When a new month starts, the page will switch automatically; only add a new key after your first check-in.
 // Old month keys can stay here as history.
 export const sleepCheckins: Record<string, number[]> = {
-  "2026-03": [22]
+  "2026-03": [22, 23]
 };
