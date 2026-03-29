@@ -238,6 +238,28 @@ zsh "/Users/fze/Documents/fze/code/fze-fze.github.io/scripts/shortcuts/checkin-m
 
 这是全站级配置入口，比去每个页面里硬改要稳得多。
 
+### 文章链接现在有两种显示方式
+
+文章详情页的正文链接现在会按写法自动分成两类：
+
+- 单独一行、且这一行只有一个外链时，会自动渲染成预览卡片
+- 出现在段落里的行内链接，会保留正文流式排版，但颜色和下划线会更明显
+
+推荐写法：
+
+```md
+[生动早咖啡：在AI快速「回答」的时代，我们如何保持深度思考能力？](https://example.com/episode)
+```
+
+上面这种“独占一行”的链接会在文章页里显示成类似备忘录的卡片。  
+如果你把链接写在一段话中间，它就会作为 inline link 显示，不会打断阅读节奏。
+
+这套逻辑目前是在文章布局层做增强，入口在：
+
+- [src/layouts/PostLayout.astro](/Users/fze/Documents/fze/code/fze-fze.github.io/src/layouts/PostLayout.astro)
+
+它的好处是：不用改现有 Markdown 内容，旧文章也会自动获得新的链接展示效果。
+
 ## 几条重要约定
 
 ### 图片统一放 `public/images`
