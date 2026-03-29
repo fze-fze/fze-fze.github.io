@@ -19,7 +19,7 @@
 
 4. **站点数据层**
    `src/data/site.ts` 管站点标题、描述、导航；  
-   `src/data/sleepCheckins.ts` 和 `src/data/mindfulnessCheckins.ts` 管计划页顶部的月度打卡数据。
+   `src/data/sleepCheckins.ts` 和 `src/data/mindfulnessCheckins.ts` 管计划页顶部的月度打卡数据，日常更新优先走打卡脚本。
 
 ## 维护逻辑
 
@@ -43,13 +43,13 @@
 - 想让一篇文章长期顶在前面，就加 `置顶🔝`
 - 想让首页正确识别本周计划，就不要随意破坏计划文件名格式
 
-### 3. 计划页除了 Markdown，还依赖两份手写数据
+### 3. 计划页除了 Markdown，还依赖两份打卡数据
 
 - 早睡打卡：`src/data/sleepCheckins.ts`
 - 正念打卡：`src/data/mindfulnessCheckins.ts`
 
-这两块不是从 Markdown 自动生成的，而是手动维护的月份记录。  
-如果你发现计划页顶部的点阵没有更新，优先检查这两个文件。
+现在推荐的维护方式不是手改，而是执行仓库里的打卡脚本。  
+脚本会自动识别当天日期、自动补当月的 `YYYY-MM` key，并避免重复写入。
 
 ### 4. 发布是自动的，不需要再写施工步骤
 
@@ -169,10 +169,66 @@ draft: false
 
 ### 更新打卡
 
+推荐入口：
+
+```bash
+node scripts/update-habit-checkin.mjs --habit sleep
+node scripts/update-habit-checkin.mjs --habit mindfulness
+node scripts/update-habit-checkin.mjs --habit sleep --date 2026-03-28
+```
+
+也可以直接用 npm 别名：
+
+```bash
+npm run habit:sleep
+npm run habit:mindfulness
+```
+
+这套脚本会做三件事：
+
+- 自动按当天日期写入
+- 本地时间凌晨 `02:00` 之前执行时，默认仍记到前一天
+- 跨月时自动创建新的 `YYYY-MM` 月份 key
+- 同一天重复执行时自动跳过，不会重复打卡
+
 - 早睡打卡：[src/data/sleepCheckins.ts](/Users/fze/Documents/fze/code/fze-fze.github.io/src/data/sleepCheckins.ts)
 - 正念打卡：[src/data/mindfulnessCheckins.ts](/Users/fze/Documents/fze/code/fze-fze.github.io/src/data/mindfulnessCheckins.ts)
 
-数据按月份维护，改完页面会自动按当月渲染。
+页面仍然按月份读取这两份数据文件。  
+如果脚本没法用，才回退到手动编辑这两个文件。
+
+### macOS 快捷指令
+
+现在仓库里已经准备好了两个给快捷指令调用的脚本入口：
+
+- 早睡：`scripts/shortcuts/checkin-sleep.sh`
+- 冥想：`scripts/shortcuts/checkin-mindfulness.sh`
+
+在 macOS 的“快捷指令”里各建一个快捷方式，名字就叫：
+
+- `早睡打卡`
+- `冥想打卡`
+
+每个快捷指令都使用同样的结构：
+
+1. 添加“运行 Shell 脚本”
+2. Shell 选 `/bin/zsh`
+3. 脚本内容填：
+
+```bash
+zsh "/Users/fze/Documents/fze/code/fze-fze.github.io/scripts/shortcuts/checkin-sleep.sh"
+```
+
+或：
+
+```bash
+zsh "/Users/fze/Documents/fze/code/fze-fze.github.io/scripts/shortcuts/checkin-mindfulness.sh"
+```
+
+4. 再接一个“显示结果”或“显示通知”，把脚本输出展示出来
+
+这样以后你只要点一下快捷指令，就会自动按当天日期维护打卡。 
+跨月时不需要再手动补新的月份 key。
 
 ### 调整全站信息
 
@@ -218,6 +274,8 @@ npm run dev
 - `npm run dev`
 - `npm run build`
 - `npm run preview`
+- `npm run habit:sleep`
+- `npm run habit:mindfulness`
 
 ## 给未来维护者的一句话
 
