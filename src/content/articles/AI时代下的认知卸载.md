@@ -4,7 +4,7 @@ date: 2026.03.14
 description: 别只想着“把内容喂给 AI ”，你要想的是：你希望 AI 帮你变成什么样的人。
 tags:
   - 深夜
-cover: /images/covers/articles/cognitive-offloading.jpg
+cover: ./AI时代下的认知卸载/cover.jpg
 draft: false
 ---
 

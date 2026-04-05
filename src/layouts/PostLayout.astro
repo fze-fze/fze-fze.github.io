@@ -6,9 +6,18 @@ interface Props {
   description?: string;
   dateLabel?: string;
   meta?: string[];
+  linkPreviewMap?: Record<
+    string,
+    {
+      url: string;
+      title?: string;
+      siteName?: string;
+      image?: string;
+    }
+  >;
 }
 
-const { title, description, dateLabel, meta = [] } = Astro.props;
+const { title, description, dateLabel, meta = [], linkPreviewMap = {} } = Astro.props;
 
 const weightedLength = (value: string) =>
   Array.from(value).reduce((sum, char) => sum + (/[\u0000-\u00ff]/.test(char) ? 0.6 : 1), 0);
@@ -109,8 +118,11 @@ const titleLines = splitTitleIntoTwoLines(title);
   </article>
 </BaseLayout>
 
+<script id="link-preview-map" type="application/json" set:html={JSON.stringify(linkPreviewMap)}></script>
 <script is:inline>
   const articleShell = document.querySelector(".article-shell");
+  const linkPreviewScript = document.querySelector("#link-preview-map");
+  const linkPreviewMap = linkPreviewScript ? JSON.parse(linkPreviewScript.textContent || "{}") : {};
 
   const formatHost = (hostname) => hostname.replace(/^www\./, "");
 
@@ -175,9 +187,12 @@ const titleLines = splitTitleIntoTwoLines(title);
       if (!/^https?:$/.test(url.protocol)) return;
 
       const rawText = anchor.textContent?.trim() ?? "";
+      const preview = linkPreviewMap[anchor.href] || linkPreviewMap[url.toString()] || null;
       const host = formatHost(url.hostname);
-      const title = deriveTitle(rawText, url);
+      const title = truncateText(preview?.title || deriveTitle(rawText, url), 92);
+      const siteName = preview?.siteName ? formatHost(preview.siteName) : host;
       const badge = deriveBadge(url.hostname);
+      const imageUrl = preview?.image;
       const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(url.hostname)}&sz=128`;
 
       paragraph.dataset.linkCard = "true";
@@ -192,7 +207,7 @@ const titleLines = splitTitleIntoTwoLines(title);
 
       const eyebrow = document.createElement("span");
       eyebrow.className = "link-card__eyebrow";
-      eyebrow.textContent = host;
+      eyebrow.textContent = siteName;
 
       const titleNode = document.createElement("strong");
       titleNode.className = "link-card__title";
@@ -204,12 +219,12 @@ const titleLines = splitTitleIntoTwoLines(title);
       media.className = "link-card__media";
       media.setAttribute("aria-hidden", "true");
 
-      const faviconNode = document.createElement("img");
-      faviconNode.className = "link-card__favicon";
-      faviconNode.src = faviconUrl;
-      faviconNode.alt = "";
-      faviconNode.loading = "lazy";
-      faviconNode.referrerPolicy = "no-referrer";
+      const coverNode = document.createElement("img");
+      coverNode.className = "link-card__cover";
+      coverNode.src = imageUrl || faviconUrl;
+      coverNode.alt = "";
+      coverNode.loading = "lazy";
+      coverNode.referrerPolicy = "no-referrer";
 
       const badgeNode = document.createElement("span");
       badgeNode.className = "link-card__badge";
@@ -219,15 +234,20 @@ const titleLines = splitTitleIntoTwoLines(title);
       arrowNode.className = "link-card__arrow";
       arrowNode.textContent = "↗";
 
-      faviconNode.addEventListener("load", () => {
-        media.dataset.hasImage = "true";
+      coverNode.addEventListener("load", () => {
+        media.dataset.hasCover = imageUrl ? "true" : "favicon";
       });
 
-      faviconNode.addEventListener("error", () => {
-        faviconNode.remove();
+      coverNode.addEventListener("error", () => {
+        if (imageUrl && coverNode.src !== faviconUrl) {
+          coverNode.src = faviconUrl;
+          return;
+        }
+
+        coverNode.remove();
       });
 
-      media.append(faviconNode, badgeNode, arrowNode);
+      media.append(coverNode, badgeNode, arrowNode);
       anchor.append(copy, media);
     });
   };
@@ -310,11 +330,30 @@ const titleLines = splitTitleIntoTwoLines(title);
   }
 
   .article-shell :global(blockquote) {
-    margin: 1.6rem 0;
-    padding: 1rem 1.2rem;
-    border-left: 3px solid #cfcfcf;
-    background: var(--bg-elevated);
-    border-radius: 14px;
+    margin: 1.8rem 0;
+    padding: 0.2rem 0 0.2rem 1.2rem;
+    border-left: 4px solid #d9d9d9;
+    background: transparent;
+    border-radius: 0;
+    color: var(--text-soft);
+  }
+
+  .article-shell :global(blockquote > :first-child) {
+    margin-top: 0;
+  }
+
+  .article-shell :global(blockquote > :last-child) {
+    margin-bottom: 0;
+  }
+
+  .article-shell :global(blockquote p),
+  .article-shell :global(blockquote li) {
+    color: inherit;
+  }
+
+  .article-shell :global(blockquote ul),
+  .article-shell :global(blockquote ol) {
+    margin: 0.7rem 0;
   }
 
   .article-shell :global(code) {
@@ -343,10 +382,15 @@ const titleLines = splitTitleIntoTwoLines(title);
     display: grid;
     justify-items: center;
     gap: 0.8rem;
+    width: fit-content;
+    max-width: 100%;
   }
 
   .article-shell :global(img) {
     margin: 2rem auto;
+    width: min(100%, 42rem);
+    height: auto;
+    object-fit: contain;
   }
 
   .article-shell :global(figure img) {
@@ -445,31 +489,57 @@ const titleLines = splitTitleIntoTwoLines(title);
   }
 
   .article-shell :global(.link-card__media) {
-    width: clamp(92px, 16vw, 116px);
-    min-height: 116px;
+    position: relative;
+    width: clamp(104px, 18vw, 132px);
+    height: clamp(104px, 18vw, 132px);
     border-radius: 18px;
     background:
       radial-gradient(circle at top right, rgba(255, 255, 255, 0.82), transparent 45%),
       linear-gradient(145deg, #1e1e1e, #434343);
-    display: grid;
-    align-content: space-between;
-    justify-items: start;
-    padding: 0.78rem;
+    display: block;
+    padding: 0.7rem;
     color: #ffffff;
+    overflow: hidden;
+    flex-shrink: 0;
   }
 
-  .article-shell :global(.link-card__favicon) {
-    width: 3rem;
-    height: 3rem;
+  .article-shell :global(.link-card__media[data-has-cover="true"]) {
+    padding: 0.36rem;
+    background: linear-gradient(180deg, #f4f4f4, #ebebeb);
+    box-shadow:
+      inset 0 0 0 1px rgba(17, 17, 17, 0.06),
+      0 8px 18px rgba(17, 17, 17, 0.08);
+  }
+
+  .article-shell :global(.link-card__cover) {
+    width: 100%;
+    height: 100%;
     margin: 0;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.92);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+    display: block;
   }
 
-  .article-shell :global(.link-card__media[data-has-image="true"] .link-card__badge) {
+  .article-shell :global(.link-card__media[data-has-cover="true"] .link-card__badge) {
     display: none;
+  }
+
+  .article-shell :global(.link-card__media[data-has-cover="true"] .link-card__arrow) {
+    right: 0.55rem;
+    bottom: 0.48rem;
+    padding: 0.22rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #111111;
+    text-shadow: none;
+  }
+
+  .article-shell :global(.link-card__media[data-has-cover="favicon"] .link-card__cover) {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 14px;
   }
 
   .article-shell :global(.link-card__badge) {
@@ -486,12 +556,18 @@ const titleLines = splitTitleIntoTwoLines(title);
     font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 0.04em;
+    position: absolute;
+    left: 0.7rem;
+    top: 0.7rem;
   }
 
   .article-shell :global(.link-card__arrow) {
-    justify-self: end;
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0.7rem;
     font-size: 1rem;
     opacity: 0.88;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
   }
 
   @media (max-width: 720px) {
@@ -501,10 +577,7 @@ const titleLines = splitTitleIntoTwoLines(title);
 
     .article-shell :global(.link-card__media) {
       width: 100%;
-      min-height: 82px;
-      grid-template-columns: auto auto;
-      align-items: end;
-      justify-content: space-between;
+      height: 88px;
     }
   }
 </style>

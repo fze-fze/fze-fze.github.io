@@ -1,13 +1,16 @@
 ---
+import type { ImageMetadata } from "astro";
+
 interface Props {
   href: string;
   title: string;
   dateLabel: string;
-  cover?: string;
+  cover?: string | ImageMetadata;
 }
 
 const { href, title, dateLabel, cover = "" } = Astro.props;
-const coverStyle = cover ? `background-image:url(${JSON.stringify(cover)});` : "";
+const coverSrc = typeof cover === "string" ? cover : cover?.src ?? "";
+const coverStyle = coverSrc ? `background-image:url(${JSON.stringify(coverSrc)});` : "";
 ---
 
 <a class="essay-card" href={href}>

@@ -66,12 +66,12 @@
 ```text
 /
 ├─ public/
-│  └─ images/                 # 所有正式使用的静态图片
+│  └─ images/                 # 站点级静态图片（图标、通用资源）
 ├─ src/
 │  ├─ components/             # 卡片、导航、首页区块等组件
 │  ├─ content/
-│  │  ├─ articles/            # 文章内容
-│  │  ├─ essays/              # 随笔内容
+│  │  ├─ articles/            # 文章内容与文章本地图片
+│  │  ├─ essays/              # 随笔内容与随笔本地图片
 │  │  └─ plans/               # 每周计划内容
 │  ├─ data/                   # 站点信息与打卡数据
 │  ├─ layouts/                # 基础布局与正文布局
@@ -96,7 +96,7 @@
 title: 文章标题
 description: 文章摘要
 date: 2026-03-22
-cover: /images/covers/articles/your-cover.jpg
+cover: ./your-slug/cover.jpg
 tags:
   - 标签一
 draft: false
@@ -106,8 +106,8 @@ draft: false
 补充约定：
 
 - 想置顶，就在 `tags` 里加入 `置顶🔝`
-- 封面图放 `public/images/covers/articles/`
-- 正文配图放 `public/images/articles/<slug>/`
+- 文章配图和封面图都放在 `src/content/articles/<slug>/`
+- Markdown 正文里的图片优先写相对路径，例如 `![说明](./your-slug/your-image.png)`
 
 ### 新增随笔
 
@@ -120,7 +120,7 @@ draft: false
 title: 随笔标题
 description: 一句话概括
 date: 2026-03-22
-cover: /images/covers/essays/your-cover.jpg
+cover: ./your-slug/cover.jpg
 tags:
   - 随笔
 draft: false
@@ -129,8 +129,8 @@ draft: false
 
 补充约定：
 
-- 封面图放 `public/images/covers/essays/`
-- 正文配图放 `public/images/essays/<slug>/`
+- 随笔配图和封面图都放在 `src/content/essays/<slug>/`
+- Markdown 正文里的图片优先写相对路径，例如 `![说明](./your-slug/your-image.png)`
 
 ### 新增每周计划
 
@@ -244,6 +244,7 @@ zsh "/Users/fze/Documents/fze/code/fze-fze.github.io/scripts/shortcuts/checkin-m
 
 - 单独一行、且这一行只有一个外链时，会自动渲染成预览卡片
 - 出现在段落里的行内链接，会保留正文流式排版，但颜色和下划线会更明显
+- 预览卡片会优先在构建时抓取目标页面的 OG 封面图；抓不到时会自动回退到站点 favicon
 
 推荐写法：
 
@@ -260,12 +261,41 @@ zsh "/Users/fze/Documents/fze/code/fze-fze.github.io/scripts/shortcuts/checkin-m
 
 它的好处是：不用改现有 Markdown 内容，旧文章也会自动获得新的链接展示效果。
 
+### 文章引用块已收敛为原生 Markdown 风格
+
+文章详情页里的 `blockquote` 现在不再使用“卡片式引用”，而是改回更接近 Markdown 默认渲染的样式：
+
+- 透明背景
+- 左侧浅灰竖线
+- 更干净的段落流式排版
+
+对应样式入口在：
+
+- [src/layouts/PostLayout.astro](/Users/fze/Documents/fze/code/fze-fze.github.io/src/layouts/PostLayout.astro)
+
+如果你后面想继续微调文章正文观感，优先在这个布局文件里改，不要去每篇 Markdown 里单独补样式。
+
 ## 几条重要约定
 
-### 图片统一放 `public/images`
+### 内容图片跟内容文件放在一起
 
-不要再把正式图片混放进 `src/content`。  
-现在站内图片路径统一走 `/images/...`，这样本地开发和线上部署都更稳定。
+现在文章和随笔的图片不再优先放 `public/images`，而是直接跟对应的 Markdown 放在同级内容目录里。  
+这样做的主要原因是：Typora 打开单篇内容时，`./相对路径` 能直接预览图片，维护时也更不容易找错资源。
+
+推荐结构：
+
+```text
+src/content/articles/
+├─ 某篇文章.md
+└─ 某篇文章/
+   ├─ cover.jpg
+   └─ figure-1.png
+```
+
+补充说明：
+
+- `public/images` 现在更适合放全站通用资源，比如图标、下载按钮、站点级插图
+- 和单篇内容强绑定的封面图、正文配图，优先放回对应内容旁边
 
 ### 计划 slug 不要随便改格式
 

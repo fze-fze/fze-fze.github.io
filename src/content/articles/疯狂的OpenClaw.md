@@ -2,7 +2,7 @@
 title: 疯狂的OpenClaw
 description: 2026开年，一款名叫 OpenClaw 的 AI agent 迅速席卷全球，成为继 ChatGPT 和 DeepSeek 之后第三个现象级爆火的 AI 产品。
 date: 2026.03.15
-cover: /images/covers/articles/openclaw.jpg
+cover: ./疯狂的OpenClaw/cover.jpg
 tags:
   - 傍晚
 draft: false
@@ -20,7 +20,7 @@ draft: false
 
 ## 破圈的根本
 
-![OpenClaw 破圈示意图](/images/articles/openclaw/openclaw-breakout.png)
+![OpenClaw 破圈示意图](./疯狂的OpenClaw/openclaw-breakout.png)
 
 首先我们需要弄明白 OpenClaw 可以做什么。它将目标从回答问题转向了“替你做事”，比豆包的作用更广，比 Manus 更像一个值得信赖的助手。OpenClaw 冲出了浏览器和对话框，可以接管社交账号、设定日历闹钟、操作本地电脑实行自动化操作。这个形象对于普通人来说非常致命，因为它把“AI助手”这个抽象概念变成了一个具体的想象：**我可以有一个数字员工**。
 
