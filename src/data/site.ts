@@ -12,13 +12,11 @@ export function withBase(path: string) {
 
 export const siteMeta = {
   title: "fze's journal",
-  description: "一个极简静态博客，记录文章、随笔与每周计划。",
+  description: "一个只保留文章的极简静态博客。",
   author: "fze"
 };
 
 export const navigation = [
   { href: withBase("/"), label: "首页" },
-  { href: withBase("/articles"), label: "文章" },
-  { href: withBase("/essays"), label: "随笔" },
-  { href: withBase("/plans"), label: "计划" }
+  { href: withBase("/articles"), label: "文章" }
 ];

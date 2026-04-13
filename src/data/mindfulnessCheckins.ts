@@ -4,5 +4,5 @@
 // Manual edits are still allowed as a fallback, and old month keys can stay here as history.
 export const mindfulnessCheckins: Record<string, number[]> = {
   "2026-03": [22, 23, 24, 26, 27, 28, 30],
-  "2026-04": [1, 2, 5, 6]
+  "2026-04": [1, 2, 5, 6, 13]
 };

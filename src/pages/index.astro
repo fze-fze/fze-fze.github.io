@@ -2,55 +2,24 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import HomeHero from "../components/HomeHero.astro";
-import SectionShell from "../components/SectionShell.astro";
 import ArticlePreviewCard from "../components/ArticlePreviewCard.astro";
-import EssayListCard from "../components/EssayListCard.astro";
-import PlanSummary from "../components/PlanSummary.astro";
+import HabitCheckin from "../components/HabitCheckin.astro";
 import { withBase } from "../data/site";
-import { getCurrentPlan, sortArticles } from "../utils/content";
+import { sleepCheckins } from "../data/sleepCheckins";
+import { mindfulnessCheckins } from "../data/mindfulnessCheckins";
+import { sortArticles } from "../utils/content";
 
 const recentArticles = sortArticles(await getCollection("articles", ({ data }) => !data.draft));
 
 const featuredArticle = recentArticles[0];
-const railArticles = recentArticles.slice(1, 4);
-const recentEssays = (await getCollection("essays", ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 4);
-
-const currentPlan = getCurrentPlan(await getCollection("plans", ({ data }) => !data.draft));
-
-const extractPlanSectionLines = (body?: string) => {
-  if (!body) return [];
-
-  const lines = body
-    .split("\n")
-    .map((line) => line.trim());
-
-  let inGoalSection = false;
-  const sectionLines: string[] = [];
-
-  for (const line of lines) {
-    if (line.startsWith("## ")) {
-      if (inGoalSection) break;
-      inGoalSection = line.includes("本周目标");
-      continue;
-    }
-
-    if (!inGoalSection) continue;
-    if (!line) continue;
-    sectionLines.push(line);
-  }
-
-  return sectionLines;
-};
+const railArticles = recentArticles.slice(1, 6);
 ---
 
-<BaseLayout title="fze's journal | 极简静态博客" description="首页、文章和每周计划统一于同一套白底黑字的极简视觉系统。">
+<BaseLayout title="fze's journal | 纯文章静态博客" description="一个只保留文章的极简静态博客。">
   <HomeHero />
 
   {featuredArticle && (
     <section class="home-section recent-articles-section">
-      <SectionShell title="最近文章" />
       <div class="container article-story-grid">
         <div class="article-story-main">
           <div class="article-story-sticky">
@@ -88,53 +57,10 @@ const extractPlanSectionLines = (body?: string) => {
     </section>
   )}
 
-  {recentEssays.length > 0 && (
-    <section class="home-section recent-essays-section">
-      <div class="container section-head">
-        <h2 class="section-title">最近随笔</h2>
-        <a class="section-head-link" href={withBase("/essays")}>查看更多</a>
-      </div>
-      <div class="container essays-grid">
-        {recentEssays.map((essay) => (
-          <EssayListCard
-            href={withBase(`/essays/${essay.slug}`)}
-            title={essay.data.title}
-            dateLabel={essay.data.date.toLocaleDateString("zh-CN")}
-            cover={essay.data.cover}
-          />
-        ))}
-      </div>
-    </section>
-  )}
-
-  <section class="home-section">
-    <div class="container section-head">
-      <h2 class="section-title">本周计划</h2>
-      <a class="section-head-link" href={withBase("/plans")}>查看更多</a>
-    </div>
-    <div class="container plan-wrap">
-      {currentPlan && (
-        <PlanSummary
-          href={withBase(`/plans/${currentPlan.slug}`)}
-          title={currentPlan.data.title}
-          week={currentPlan.data.week}
-          summaryLines={extractPlanSectionLines(currentPlan.body)}
-          status={currentPlan.data.status}
-        />
-      )}
-      <div class="notes-panel">
-        <div class="notes-panel-head">
-          <h3>Todo List</h3>
-        </div>
-        <ul class="todo-list">
-          {(currentPlan?.data.goal ?? []).slice(0, 4).map((item) => (
-            <li class:list={{ "is-done": item.done }}>
-              <span class="todo-check" aria-hidden="true"></span>
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+  <section class="home-section habit-section">
+    <div class="container habit-grid">
+      <HabitCheckin title="早睡" records={sleepCheckins} />
+      <HabitCheckin title="冥想" records={mindfulnessCheckins} />
     </div>
   </section>
 </BaseLayout>
@@ -144,15 +70,17 @@ const extractPlanSectionLines = (body?: string) => {
     padding: 0 0 clamp(5.5rem, 11vw, 8.5rem);
   }
 
-  .article-story-grid,
-  .essays-grid,
-  .plan-wrap {
+  .article-story-grid {
     display: grid;
     gap: 1rem;
   }
 
   .recent-articles-section {
     margin-top: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  .habit-section {
+    padding-top: 0;
   }
 
   .article-story-grid {
@@ -213,108 +141,29 @@ const extractPlanSectionLines = (body?: string) => {
     font-size: 0.96rem;
   }
 
-  .essays-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 3rem;
-    row-gap: 1.5rem;
-  }
-
-  .plan-wrap {
-    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-  }
-
-  .notes-panel {
-    border-radius: 22px;
-    padding: 1.35rem;
-    background: var(--panel);
-    border: 1px solid var(--line);
-  }
-
-  .notes-panel {
-    display: grid;
-    align-content: start;
-    gap: 1rem;
-  }
-
-  .notes-panel-head,
-  .todo-list li {
+  .habit-grid {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.9rem;
+    gap: 3.2rem;
+    align-items: stretch;
+    flex-wrap: wrap;
   }
 
-  .notes-panel-head h3,
-  .todo-list,
-  .todo-list li {
-    margin: 0;
-  }
-
-  .notes-panel-head h3 {
-    font-size: 1rem;
-    letter-spacing: -0.03em;
-  }
-
-  .todo-list {
-    display: grid;
-    gap: 0.75rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .todo-list li {
-    justify-content: flex-start;
-    align-items: flex-start;
-    color: var(--text);
-    line-height: 1.45;
-  }
-
-  .todo-check {
-    position: relative;
-    width: 1rem;
-    height: 1rem;
-    flex: 0 0 1rem;
-    margin-top: 0.18rem;
-    border-radius: 999px;
-    border: 1px solid var(--line-strong);
-    background: var(--bg-elevated);
-  }
-
-  .todo-list li.is-done {
-    color: var(--text-soft);
-  }
-
-  .todo-list li.is-done .todo-check {
-    border-color: #111111;
-    background: #111111;
-  }
-
-  .todo-list li.is-done .todo-check::after {
-    content: "";
-    position: absolute;
-    left: 0.31rem;
-    top: 0.14rem;
-    width: 0.22rem;
-    height: 0.46rem;
-    border-right: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
-    transform: rotate(45deg);
-  }
-
-  .todo-list li.is-done span:last-child {
-    text-decoration: line-through;
-    text-decoration-thickness: 1px;
+  .habit-grid > * {
+    flex: 1 1 320px;
+    min-width: 0;
   }
 
   @media (max-width: 900px) {
-    .article-story-grid,
-    .essays-grid,
-    .plan-wrap {
+    .article-story-grid {
       grid-template-columns: 1fr;
     }
 
     .article-story-sticky {
       position: static;
+    }
+
+    .habit-grid {
+      gap: 1rem;
     }
   }
 </style>
